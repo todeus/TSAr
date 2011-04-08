@@ -1,54 +1,77 @@
-#include <QtCore/QCoreApplication>
 #include "iostream"
 #include "fstream"
 
 using namespace std;
 
-int compress()
+int compress_rle()
 {
         char buffer;
-        int count=-1;
         char old_buffer;
-        cout << count << endl;
+        int count;
         ifstream in_file("test.txt");
-        ofstream out_file("test.rle");
+        ofstream out_file("test.tsar");
+        in_file >> buffer;
         while(!in_file.eof())
         {
-                old_buffer = buffer;
+            count=-1;
+            while((old_buffer == buffer)&&!in_file.eof())
+            {
+                count++;
                 in_file >> buffer;
-                while(old_buffer == buffer)
-                {
-                        count++;
-                }
-                old_buffer = buffer;
-                out_file << old_buffer;
-/*
-                while((buffer==old_buffer)&&!in_file.eof())
-                {
-                        count++;
-                        old_buffer=buffer;
-                        in_file >> buffer;
-                        cout << buffer << " " << count << endl;
-                }
+            }
+            if(count!=-1)
+            {
+                cout << old_buffer << (char)count;
+                out_file << old_buffer << (char)count;
+                continue;
+            } else {
+                cout << buffer;
                 out_file << buffer;
-                if(count>=0) out_file << count;
-                count=-1;
-                old_buffer=buffer;
-*/
-
+            }
+            old_buffer = buffer;
+            in_file >> buffer;
         }
         return 0;
 }
 
-int dcompress()
+int dcompress_rle()
+{
+    char buffer;
+    char old_buffer;
+    int count;
+    ifstream in_file("test.tsar");
+    in_file >> buffer;
+    while(!in_file.eof())
+    {
+        cout << buffer;
+        if(old_buffer==buffer)
+        {
+            in_file >> buffer;
+            count = (int)buffer;
+            for(int i=0;i<count;i++)
+                cout << old_buffer;
+        }
+        old_buffer=buffer;
+        in_file >> buffer;
+    }
+    return 0;
+}
+
+int compress_haffman()
 {
     return 0;
 }
 
+int dcompress_haffman()
+{
+    return 0;
+}
 
 int main(int argc, char *argv[])
 {
-    QCoreApplication a(argc, argv);
 
-    return a.exec();
+    compress_rle();
+    cout << endl;
+    dcompress_rle();
+    return 0;
 }
