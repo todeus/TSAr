@@ -18,4 +18,6 @@ TEMPLATE = app
 SOURCES += main.cpp
 
 OTHER_FILES += \
-    test.txt
+    ../arhiver-build-desktop/test.txt
+
+HEADERS +=
