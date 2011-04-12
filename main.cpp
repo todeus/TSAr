@@ -6,6 +6,7 @@ using namespace std;
 
 int compress_rle()
 {
+    cout << "Сжато RLE:" << endl;
         char buffer;
         char old_buffer;
         int count;
@@ -39,6 +40,7 @@ int compress_rle()
 
 int dcompress_rle()
 {
+    cout << "Расжато RLE:" << endl;
     char buffer;
     char old_buffer;
     int count;
@@ -92,8 +94,9 @@ int nod::print(string code, string *code_table)
 
 
 
-int compress_haffman()
+int compress_haffman(string *code_table)
 {
+
     int elem[255];
     for(int i=0;i<255;i++)
         elem[i]=0;
@@ -211,11 +214,11 @@ int compress_haffman()
 //            //Закончили рисовать
     }
     //-------------Построили дерево-------------
-
+    cout << "Таблица соответствий Хаффмана:" << endl;
     //-------Строим из дерева таблицу соответствий---------------------
     string code;
     code = "";
-    string* code_table = new string[255];
+
     for(int i=0;i<255;i++)
         code_table[i]="";
 
@@ -227,7 +230,7 @@ int compress_haffman()
     //-------Заканчиваем строить таблицу-----------
 
     cout << endl;
-
+    cout << "Сжато Хаффманом:" << endl;
     //--------Сжимаем файл--------------
 
     fstream in_file2("test.txt");
@@ -236,35 +239,48 @@ int compress_haffman()
     while(!in_file2.eof())
     {
         cout << code_table[(int)buffer];
+        out_file2 << code_table[(int)buffer];
         in_file2.get(buffer);
     }
-
+    in_file2.close();
+    out_file2.close();
     //--------Заканчиваем сжимать файл-----------
-
+cout << endl;
     return 0;
 }
 
-int dcompress_haffman()
+int dcompress_haffman(string *code_table)
 {
+    cout << "Разжато Хаффманом" << endl;
+    char buffer;
+    string str;
+    str = "";
     fstream in_file2("test_haf.tsar");
     in_file2.get(buffer);
     while(!in_file2.eof())
     {
+        str += buffer;
+        for(int i=0;i<255;i++)
+            if((code_table[i]==str)&&(code_table[i]!=""))
+            {
+                str = "";
+                cout << (char)i;
+            }
         in_file2.get(buffer);
     }
-    return 0;
 }
 
 int main(int argc, char *argv[])
 {
+    string* code_table = new string[255];
 
     compress_rle();
     cout << endl;
     dcompress_rle();
     cout << endl;
-    compress_haffman();
+    compress_haffman(code_table);
     cout << endl;
-    dcompress_haffman();
+    dcompress_haffman(code_table);
     cout << endl;
 
     return 0;
