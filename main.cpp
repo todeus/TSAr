@@ -250,7 +250,7 @@ int dcompress_haffman()
     in_file2.get(buffer);
     while(!in_file2.eof())
     {
-
+        in_file2.get(buffer);
     }
     return 0;
 }
