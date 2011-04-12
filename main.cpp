@@ -1,5 +1,6 @@
 #include "iostream"
 #include "fstream"
+#include "string.h"
 
 using namespace std;
 
@@ -32,6 +33,8 @@ int compress_rle()
             in_file.get(buffer);
         }
         return 0;
+        in_file.close();
+        out_file.close();
 }
 
 int dcompress_rle()
@@ -55,31 +58,33 @@ int dcompress_rle()
         in_file.get(buffer);
     }
     return 0;
+    in_file.close();
 }
 
 class nod
 {
 public:
     int mas;
-    char name;
+    int name;
     nod *left;
     nod *right;
-    int print(int n);
+    int print(string code, string *code_table);
 };
 
-int nod::print(int n)
+int nod::print(string code, string *code_table)
 {
     if(left)
     {
-        cout << "0";
-        left->print(n+1);
-        cout << "-" << left->mas << " ";
+        left->print(code+'0',code_table);
     }
     if(right)
     {
-        cout << "1";
-        right->print(n+1);
-        cout << "-" << right->mas << " ";
+        right->print(code+'1',code_table);
+    }
+    if(name > 0)
+    {
+        code_table[name] = code;
+        //cout << code.c_str() << (char)name << endl;
     }
 
     return 0;
@@ -93,16 +98,16 @@ int compress_haffman()
     for(int i=0;i<255;i++)
         elem[i]=0;
 
+    //-----------Считаем число вхождений каждого символа-----------
     char buffer;
     fstream in_file("test.txt");
-
-    //-----------Считаем число вхождений каждого символа-----------
     in_file.get(buffer);
     while(!in_file.eof())
     {
-        elem[buffer]++;
+        elem[(int)buffer]++;
         in_file.get(buffer);
     }
+    in_file.close();
     //---------Закончили считать-------------
 
 
@@ -112,7 +117,7 @@ int compress_haffman()
     {
         a[i] = new nod;
         a[i]->mas = elem[i];
-        //a[i]->name = (char)i;
+        a[i]->name = i;
         a[i]->left = NULL;
         a[i]->right = NULL;
     }
@@ -130,7 +135,7 @@ int compress_haffman()
             {
                 buf = new nod;
                 buf->mas = a[i]->mas;
-                //buf->name = a[i]->name;
+                buf->name = a[i]->name;
                 buf->left = a[i]->left;
                 buf->right = a[i]->right;
 
@@ -154,13 +159,13 @@ int compress_haffman()
     //-------Закончили считать-----------
 
 
-        //Рисуем
-    for(int i=0;i<=b;i++)
-    {
-        cout << a[i]->mas << " ";
-    }
-        //Закончили рисовать
-    cout << endl;
+//        //Рисуем
+//    for(int i=0;i<=b;i++)
+//    {
+//        cout << a[i]->mas << " ";
+//    }
+//        //Закончили рисовать
+//    cout << endl;
 
 
     //-------------Строим дерево--------------
@@ -185,7 +190,7 @@ int compress_haffman()
                 {
                     buf = new nod;
                     buf->mas = a[i]->mas;
-                    //buf->name = a[i]->name;
+                    buf->name = a[i]->name;
                     buf->left = a[i]->left;
                     buf->right = a[i]->right;
 
@@ -197,27 +202,56 @@ int compress_haffman()
             }
         }
 
-            //Рисуем
-        for(int i=0;i<=b;i++)
-        {
-            cout << a[i]->mas << " ";
-        }
-        cout << endl;
-            //Закончили рисовать
+//            //Рисуем
+//        for(int i=0;i<=b;i++)
+//        {
+//            cout << a[i]->mas << " ";
+//        }
+//        cout << endl;
+//            //Закончили рисовать
     }
     //-------------Построили дерево-------------
 
-    //-------Обходим дерева---------------------
+    //-------Строим из дерева таблицу соответствий---------------------
+    string code;
+    code = "";
+    string* code_table = new string[255];
+    for(int i=0;i<255;i++)
+        code_table[i]="";
 
-    a[0]->print(0);
+    a[0]->print(code, code_table);
 
-    //-------Заканчиваем обход дерева-----------
+    for(int i=0;i<255;i++)
+        if(code_table[i]!="")
+            cout << code_table[i].c_str() << " - " << (char)i << endl;
+    //-------Заканчиваем строить таблицу-----------
+
+    cout << endl;
+
+    //--------Сжимаем файл--------------
+
+    fstream in_file2("test.txt");
+    ofstream out_file2("test_haf.tsar");
+    in_file2.get(buffer);
+    while(!in_file2.eof())
+    {
+        cout << code_table[(int)buffer];
+        in_file2.get(buffer);
+    }
+
+    //--------Заканчиваем сжимать файл-----------
 
     return 0;
 }
 
 int dcompress_haffman()
 {
+    fstream in_file2("test_haf.tsar");
+    in_file2.get(buffer);
+    while(!in_file2.eof())
+    {
+
+    }
     return 0;
 }
 
@@ -230,5 +264,8 @@ int main(int argc, char *argv[])
     cout << endl;
     compress_haffman();
     cout << endl;
+    dcompress_haffman();
+    cout << endl;
+
     return 0;
 }
